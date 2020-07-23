@@ -1,4 +1,5 @@
 import requests
+from requests import HTTPError
 
 
 class ConsulAgent(object):
@@ -12,6 +13,7 @@ class ConsulAgent(object):
         return response.json()
 
     def _put(self, path, request=None):
+        print "PUT", path, request or ''
         response = requests.put(self.path + path, json=request)
         response.raise_for_status()
         return response.json() if response.content else None
@@ -56,3 +58,16 @@ class ConsulAgent(object):
 
     def check_deregister(self, check_id):
         return self._put('/check/register/' + check_id)
+
+    def check_update_with_register(self, check_id, status='passing', **register_kwargs):
+        try:
+            return self.check_update(check_id, status)
+        except HTTPError as e:
+            # catch only for content '''CheckID "backend_ttl_check" does not have associated TTL'''
+            if e.response.status_code >= 400 and '"%s"' % (
+                    check_id,) in e.response.content and 'TTL' in e.response.content:
+                # service not registered, register
+                self.service_register(**register_kwargs)
+                return self.check_update(check_id, status)
+            else:
+                raise
