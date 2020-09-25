@@ -13,7 +13,6 @@ class ConsulAgent(object):
         return response.json()
 
     def _put(self, path, request=None):
-        print "PUT", path, request or ''
         response = requests.put(self.path + path, json=request)
         response.raise_for_status()
         return response.json() if response.content else None
