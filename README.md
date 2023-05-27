@@ -2,6 +2,9 @@
 
 Any python service can register and send heartbeats to consul agent.
 
+WARNING: This module is for python2 and doesn't maintained anymore. 
+For python3 see https://github.com/dkdhub/py-consul-tiny
+
 # Usage with tornado
 
 ```
